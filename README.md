@@ -4,9 +4,12 @@ Personalized Stock Recommender System based on user interest toward company doma
 
 ## Project Proposal
 
+As more people work in the United States, more jobs are having pension removed from the benefits, which means less people will have a steady income when they retire when they are older. An alternative option is to start thinking about investing when people are young, such as stock investing, make good investment decisions, so when they are older, they will have a higher chance of having their savings grow exponentially. Similar to how netflix will gamify selecting movies using personalized recommendation, our goal will be to do the same for stock, presenting people with good stock investment choices based on the industry domain they are interested in. Therefore, when James opens his stock investing app, he will see rows of top stocks to invest in with each row indicating a field of healthcare and each cell within a row being a healthcare company. Ultimately, by gamifying stock investing with a netflix feel, we hope to encourage more people to start learning about stock investing early and make smart investments by the top recommendations based on the industry domain they are interested. Therefore, hopefully there will be more people who can retire from work with a good amount of savings.
+
 > QUESTION: Do we include a Rasa Personalized Stock Recommendation Chatbot within app?
 
 > NOTE: Imagine building this app for the Apple Vision Pro...
+
 
 ## CMPE 256 Project Submission Checklist
 
