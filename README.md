@@ -114,6 +114,7 @@ Here are some of the software dependencies:
 
 - Does H2O.ai's **H2O-3** include Rec Sys models?
 
+- **H2O.ai's LLM Studio** for personalized Stock Recommendation?
 - **Apache NiFi 2.0 Snapshot (custom Python Processors)**
 - **Torch 2.0.1 (Needed for Rasa Actions Server)**
 - **Unity 2021.3.13f**
