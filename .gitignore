@@ -1,8 +1,11 @@
+myStock-wave-app/assets/*.csv
+.DS_Store
+myStock-wave-app/.DS_Store
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
 *$py.class
-
 # C extensions
 *.so
 

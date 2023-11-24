@@ -1,4 +1,5 @@
 cryptography
 h2o-wave==1.0.0
+pandas
 pymysql
 sqlalchemy
