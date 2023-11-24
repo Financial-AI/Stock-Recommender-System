@@ -78,7 +78,7 @@ def _process_recommend_csv_data(filename: str) -> None:
 
 @on('#page1')
 async def page1(q: Q):
-    _process_recommend_csv_data('/Users/karoljosefbustamante/College/SJSU/CMPE256/Stock-Recommender-System/myStock-wave-app/assets/recommend.csv')
+    _process_recommend_csv_data('assets/recommend.csv')
     q.page['sidebar'].value = '#page1'
     clear_cards(q)  # When routing, drop all the cards except of the main ones (header, sidebar, meta).
 
