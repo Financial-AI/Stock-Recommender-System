@@ -1,9 +1,11 @@
 
 from h2o_wave import main, app, Q, ui, on, run_on, data
 from typing import Optional, List
-from database.models import Base
-
+from database.models import Base, Recommend
+from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
+
+import pandas as pd
 
 sqlEngine       = create_engine('mysql+pymysql://user:password@127.0.0.1:3306/nasdaq_stock', pool_recycle=3600, pool_size=50, max_overflow=50)
 dbConnection    = sqlEngine.connect()
@@ -31,9 +33,30 @@ def clear_cards(q, ignore: Optional[List[str]] = []) -> None:
             del q.page[name]
             q.client.cards.remove(name)
 
+def _process_recommend_csv_data(filename: str) -> List[List[any]]:
+    df = pd.read_csv(filename)  # If the file has no header row
+
+    # Create a session
+    Session = sessionmaker(bind=sqlEngine)
+    session = Session()
+    print(df.columns)
+    # Create a new Recommend record
+    new_record = Recommend(name='New Record Name')
+
+    # Add the new record to the session
+    session.add(new_record)
+
+    # Commit the transaction
+    session.commit()
+
+    # Close the session (optional, but recommended)
+    session.close()
+    return data
+
 
 @on('#page1')
 async def page1(q: Q):
+    recommend = _process_recommend_csv_data('/Users/karoljosefbustamante/College/SJSU/CMPE256/Stock-Recommender-System/myStock-wave-app/assets/recommend.csv')
     q.page['sidebar'].value = '#page1'
     clear_cards(q)  # When routing, drop all the cards except of the main ones (header, sidebar, meta).
 
