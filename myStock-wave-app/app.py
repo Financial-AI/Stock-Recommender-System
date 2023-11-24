@@ -1,7 +1,18 @@
 
 from h2o_wave import main, app, Q, ui, on, run_on, data
 from typing import Optional, List
+from database.models import Base
 
+from sqlalchemy import create_engine
+
+sqlEngine       = create_engine('mysql+pymysql://user:password@127.0.0.1:3306/nasdaq_stock', pool_recycle=3600, pool_size=50, max_overflow=50)
+dbConnection    = sqlEngine.connect()
+
+# Bind the engine to the Base class
+Base.metadata.bind = sqlEngine
+
+# Create all tables defined in the Base class which includes YourModelClass
+Base.metadata.create_all(sqlEngine)
 
 # Use for page cards that should be removed when navigating away.
 # For pages that should be always present on screen use q.page[key] = ...
