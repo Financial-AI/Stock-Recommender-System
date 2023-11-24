@@ -4,7 +4,7 @@ from typing import Optional, List
 from database.models import Base, Recommend
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
-
+import csv
 import pandas as pd
 
 sqlEngine       = create_engine('mysql+pymysql://user:password@127.0.0.1:3306/nasdaq_stock', pool_recycle=3600, pool_size=50, max_overflow=50)
@@ -12,6 +12,8 @@ dbConnection    = sqlEngine.connect()
 
 # Bind the engine to the Base class
 Base.metadata.bind = sqlEngine
+
+Base.metadata.drop_all(sqlEngine)
 
 # Create all tables defined in the Base class which includes YourModelClass
 Base.metadata.create_all(sqlEngine)
@@ -33,30 +35,50 @@ def clear_cards(q, ignore: Optional[List[str]] = []) -> None:
             del q.page[name]
             q.client.cards.remove(name)
 
-def _process_recommend_csv_data(filename: str) -> List[List[any]]:
+def _process_recommend_csv_data(filename: str) -> None:
     df = pd.read_csv(filename)  # If the file has no header row
-
+    df = df.isna().applymap(lambda x: None if x else x)
     # Create a session
     Session = sessionmaker(bind=sqlEngine)
     session = Session()
-    print(df.columns)
     # Create a new Recommend record
-    new_record = Recommend(name='New Record Name')
 
-    # Add the new record to the session
-    session.add(new_record)
-
-    # Commit the transaction
-    session.commit()
+    for index, row in df.iterrows():
+        new_record = Recommend(
+            one_hundredth_date = row["100th Date"],
+            close = row["Close"],
+            macd_diff_pytorch = row["MACD_diff_pytorch"],
+            macd_diff_transformers = row["MACD_diff_transformers"],
+            decision_macd_diff_pytorch = row["Decision MACD_pytorch"],
+            decision_macd_diff_transformers = row["Decision MACD_transformers"],
+            sma_twenty_pytorch= row["SMA20_pytorch"],
+            sma_twenty_transformers= row["SMA20_transformers"],
+            sma_fifty_pytorch= row["SMA50_pytorch"],
+            sma_fifty_transformers= row["SMA50_transformers"],
+            signal_pytorch= row["Signal_pytorch"],
+            signal_transformers= row["Signal_transformers"],
+            decision_gc_pytorch= row["Decision GC_pytorch"],
+            decision_gc_transformers= row["Decision GC_transformers"],
+            rsi_pytorch= row["RSI_pytorch"],
+            rsi_transformers= row["RSI_transformers"],
+            sma_two_hundred_pytorch= row["SMA200_pytorch"],
+            sma_two_hundred_transformers= row["SMA200_transformers"],
+            decision_rsi_and_sma_pytorch= row["Decision RSI/SMA_pytorch"],
+            decision_rsi_and_sma_transformers= row["Decision RSI/SMA_transformers"],
+            decision_final_status= row["Decision Financial Status"]
+        )
+        # Add the new record to the session
+        session.add(new_record)
+        # Commit the transaction
+        session.commit()
 
     # Close the session (optional, but recommended)
     session.close()
-    return data
 
 
 @on('#page1')
 async def page1(q: Q):
-    recommend = _process_recommend_csv_data('/Users/karoljosefbustamante/College/SJSU/CMPE256/Stock-Recommender-System/myStock-wave-app/assets/recommend.csv')
+    _process_recommend_csv_data('/Users/karoljosefbustamante/College/SJSU/CMPE256/Stock-Recommender-System/myStock-wave-app/assets/recommend.csv')
     q.page['sidebar'].value = '#page1'
     clear_cards(q)  # When routing, drop all the cards except of the main ones (header, sidebar, meta).
 
