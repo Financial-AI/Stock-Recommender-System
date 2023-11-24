@@ -2,6 +2,14 @@
 
 This project was bootstrapped with `wave init` command.
 
+## Creating the database
+
+1. Install mysql
+
+2. Start mysql on `localhost` port `3306` (this should be the default port)
+
+3. Create a user in mysql with the username: user and password: password
+
 ## Running the app
 
 Make sure you have activated a Python virtual environment with `h2o-wave` installed.
