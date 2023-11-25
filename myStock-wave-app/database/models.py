@@ -40,6 +40,7 @@ class NASDAQStockMetadata(Base):
     is_used_for_testing: Mapped[Optional[str]] = mapped_column(String(255))
     financial_status: Mapped[Optional[str]] = mapped_column(String(255))
     cqs_symbol: Mapped[Optional[str]] = mapped_column(String(255))
+    next_shares: Mapped[Optional[str]] = mapped_column(String(255))
     # addresses: Mapped[List["Address"]] = relationship(
     #     back_populates="user", cascade="all, delete-orphan"
     # )
@@ -63,7 +64,7 @@ class Recommend(Base):
     __tablename__ = "recommend"
     id: Mapped[int] = mapped_column(primary_key=True)
     one_hundredth_date: Mapped[Optional[str]] = mapped_column(String(255))
-    close: Mapped[Optional[float]] = Column(Float)
+    close: Mapped[Optional[float]] = Column(Float, default=0.0, nullable=True)
     macd_diff_pytorch: Mapped[Optional[float]] = Column(Float, default=0.0, nullable=True)
     macd_diff_transformers: Mapped[Optional[float]] = Column(Float, default=0.0, nullable=True)
     decision_macd_diff_pytorch: Mapped[Optional[bool]] = Column(Boolean, default=False, nullable=True)
@@ -83,7 +84,7 @@ class Recommend(Base):
     decision_rsi_and_sma_pytorch: Mapped[Optional[bool]] = Column(Boolean, default=False, nullable=True)
     decision_rsi_and_sma_transformers: Mapped[Optional[bool]] = Column(Boolean, default=False, nullable=True)
     decision_final_status: Mapped[Optional[bool]] = Column(Boolean, default=False, nullable=True)
-    # user_id: Mapped[int] = mapped_column(ForeignKey("user_account.id"))
+    nasdaq_stock_metadata_id: Mapped[int] = mapped_column(ForeignKey("nasdaq_stock_metadata.id"))
     # user: Mapped["User"] = relationship(back_populates="addresses")
 
     def __repr__(self) -> str:
