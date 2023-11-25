@@ -88,7 +88,7 @@ async def page2(q: Q):
     clear_cards(q)  # When routing, drop all the cards except of the main ones (header, sidebar, meta).
     add_card(q, 'chart1', ui.plot_card(
         box='horizontal',
-        title='Chart 1',
+        title='100 Moving Average Vs Close Price',
         data=data('category country product price', 10, rows=[
             ('G1', 'USA', 'P1', 124),
             ('G1', 'China', 'P2', 580),
@@ -228,15 +228,17 @@ async def init(q: Q) -> None:
             ]),
         ])
     ])])
+    sjsu_logo_url = "https://raw.githubusercontent.com/Financial-AI/Stock-Recommender-System/main/images/San_Jose_State_Spartans_logo.png"
+
     q.page['sidebar'] = ui.nav_card(
-        box='sidebar', color='primary', title='My App', subtitle="Let's conquer the world!",
+        box='sidebar', color='primary', title='Stock Autobots', subtitle="Stock Recommender System",
         value=f'#{q.args["#"]}' if q.args['#'] else '#page1',
-        image='https://wave.h2o.ai/img/h2o-logo.svg', items=[
+        image=sjsu_logo_url, items=[
             ui.nav_group('Menu', items=[
                 ui.nav_item(name='#page1', label='Home'),
-                ui.nav_item(name='#page2', label='Charts'),
-                ui.nav_item(name='#page3', label='Grid'),
-                ui.nav_item(name='#page4', label='Form'),
+                ui.nav_item(name='#page2', label='EDA Telemetry'),
+                ui.nav_item(name='#page3', label='Train Model'),
+                ui.nav_item(name='#page4', label='Deploy Model'),
             ]),
         ])
     q.page['header'] = ui.header_card(
