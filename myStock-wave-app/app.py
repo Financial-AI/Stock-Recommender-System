@@ -4,7 +4,7 @@ from typing import Optional, List
 from database.models import Base, Recommend, NASDAQStockMetadata
 from database.seed_helpers import seed_symbols_valid_metadata, seed_recommend_csv_data
 from database.recommendation import get_top_n_most_recent_recommended_securities 
-from database.chart import get_close_chart
+from database.chart import get_close_chart, get_sma_20_diff_chart 
 from sqlalchemy import create_engine
 
 TOP_N_RECOMMENDATIONS = 3
@@ -73,12 +73,29 @@ async def page2(q: Q):
                               dodge='=category', y_min=0)])
     ))
     ticker_with_close_pred_over_time = get_close_chart(sqlEngine, TOP_N_RECOMMENDATIONS)
+    ticker_with_macd_diff_over_time_pytorch = get_sma_20_diff_chart(sqlEngine, "pytorch", TOP_N_RECOMMENDATIONS)
+    ticker_with_macd_diff_over_time_transformers = get_sma_20_diff_chart(sqlEngine, "transformers", TOP_N_RECOMMENDATIONS)
     print(ticker_with_close_pred_over_time.keys())
-    first_recommended = next(iter(ticker_with_close_pred_over_time.values()))
-    add_card(q, 'chart2', ui.plot_card(
+    ticker_with_close_pred_over_time_first_recommended = next(iter(ticker_with_close_pred_over_time.values()))
+    ticker_with_macd_diff_pred_over_time_first_recommended_pytorch = next(iter(ticker_with_macd_diff_over_time_pytorch.values()))
+    ticker_with_macd_diff_pred_over_time_first_recommended_transformers = next(iter(ticker_with_macd_diff_over_time_transformers.values()))
+
+    add_card(q, 'close_price', ui.plot_card(
         box='horizontal',
         title='Close price over time',
-        data=data('date price', len(first_recommended), rows=first_recommended),
+        data=data('date price', len(ticker_with_close_pred_over_time_first_recommended), rows=ticker_with_close_pred_over_time_first_recommended),
+        plot=ui.plot([ui.mark(type='line', x_scale='time', x='=date', y='=price', y_min=0)])
+    ))
+    add_card(q, 'pytorch_sma_20', ui.plot_card(
+        box='horizontal',
+        title='SMA 20 over time',
+        data=data('date price', len(ticker_with_macd_diff_pred_over_time_first_recommended_pytorch), rows=ticker_with_macd_diff_pred_over_time_first_recommended_pytorch),
+        plot=ui.plot([ui.mark(type='line', x_scale='time', x='=date', y='=price', y_min=0)])
+    ))
+    add_card(q, 'transformers_sma_20', ui.plot_card(
+        box='horizontal',
+        title='SMA 20 over time',
+        data=data('date price', len(ticker_with_macd_diff_pred_over_time_first_recommended_transformers), rows=ticker_with_macd_diff_pred_over_time_first_recommended_transformers),
         plot=ui.plot([ui.mark(type='line', x_scale='time', x='=date', y='=price', y_min=0)])
     ))
     add_card(q, 'table', ui.form_card(box='vertical', items=[ui.table(
