@@ -33,7 +33,7 @@ def clear_cards(q, ignore: Optional[List[str]] = []) -> None:
 async def page1(q: Q):
     q.page['sidebar'].value = '#page1'
     clear_cards(q)  # When routing, drop all the cards except of the main ones (header, sidebar, meta).
-    top_recommended_securities = get_top_n_most_recent_recommended_securities(sqlEngine, 2)
+    top_recommended_securities = get_top_n_most_recent_recommended_securities(sqlEngine, 3)
     for index, recommended_security in enumerate(top_recommended_securities):
         add_card(q, f'info{index}', ui.tall_info_card(box='horizontal', name="", title=f"{recommended_security.symbol}", caption=f"{recommended_security.security_name}", icon='SpeedHigh'))
     # add_card(q, 'chart1', ui.plot_card(
@@ -72,13 +72,9 @@ async def page1(q: Q):
     #     plot=ui.plot([ui.mark(type='line', x_scale='time', x='=date', y='=price', y_min=0)])
     # ))
     add_card(q, 'article', ui.tall_article_preview_card(
-        box=ui.box('vertical', height='600px'), title='How does magic work',
+        box=ui.box('vertical', height='600px'), title='Info',
         image='https://images.pexels.com/photos/624015/pexels-photo-624015.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
-        content='''
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum ac sodales felis. Duis orci enim, iaculis at augue vel, mattis imperdiet ligula. Sed a placerat lacus, vitae viverra ante. Duis laoreet purus sit amet orci lacinia, non facilisis ipsum venenatis. Duis bibendum malesuada urna. Praesent vehicula tempor volutpat. In sem augue, blandit a tempus sit amet, tristique vehicula nisl. Duis molestie vel nisl a blandit. Nunc mollis ullamcorper elementum.
-Donec in erat augue. Nullam mollis ligula nec massa semper, laoreet pellentesque nulla ullamcorper. In ante ex, tristique et mollis id, facilisis non metus. Aliquam neque eros, semper id finibus eu, pellentesque ac magna. Aliquam convallis eros ut erat mollis, sit amet scelerisque ex pretium. Nulla sodales lacus a tellus molestie blandit. Praesent molestie elit viverra, congue purus vel, cursus sem. Donec malesuada libero ut nulla bibendum, in condimentum massa pretium. Aliquam erat volutpat. Interdum et malesuada fames ac ante ipsum primis in faucibus. Integer vel tincidunt purus, congue suscipit neque. Fusce eget lacus nibh. Sed vestibulum neque id erat accumsan, a faucibus leo malesuada. Curabitur varius ligula a velit aliquet tincidunt. Donec vehicula ligula sit amet nunc tempus, non fermentum odio rhoncus.
-Vestibulum condimentum consectetur aliquet. Phasellus mollis at nulla vel blandit. Praesent at ligula nulla. Curabitur enim tellus, congue id tempor at, malesuada sed augue. Nulla in justo in libero condimentum euismod. Integer aliquet, velit id convallis maximus, nisl dui porta velit, et pellentesque ligula lorem non nunc. Sed tincidunt purus non elit ultrices egestas quis eu mauris. Sed molestie vulputate enim, a vehicula nibh pulvinar sit amet. Nullam auctor sapien est, et aliquet dui congue ornare. Donec pulvinar scelerisque justo, nec scelerisque velit maximus eget. Ut ac lectus velit. Pellentesque bibendum ex sit amet cursus commodo. Fusce congue metus at elementum ultricies. Suspendisse non rhoncus risus. In hac habitasse platea dictumst.
-        '''
+        content='''We use'''
     ))
 
 
