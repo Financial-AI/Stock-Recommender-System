@@ -1,8 +1,9 @@
 
 from h2o_wave import main, app, Q, ui, on, run_on, data
 from typing import Optional, List
-from database.models import Base
-
+from database.models import Base, Recommend, NASDAQStockMetadata
+from database.seed_helpers import seed_symbols_valid_metadata, seed_recommend_csv_data
+from database.recommendation import get_top_n_most_recent_recommended_securities
 from sqlalchemy import create_engine
 
 sqlEngine       = create_engine('mysql+pymysql://user:password@127.0.0.1:3306/nasdaq_stock', pool_recycle=3600, pool_size=50, max_overflow=50)
@@ -10,26 +11,6 @@ dbConnection    = sqlEngine.connect()
 
 # Bind the engine to the Base class
 Base.metadata.bind = sqlEngine
-
-# Create all tables defined in the Base class which includes YourModelClass
-Base.metadata.create_all(sqlEngine)
-# import matplotlib.pyplot as plt
-# import base64
-
-# from sjsu_sql import SQLPipeline
-# from sjsu_stock import StockPipeline
-
-# Wave Multi-Line Polot Ex:
-# https://wave.h2o.ai/docs/examples/plot-line-groups
-
-
-# class EDATelemetry:
-#     def __init__(self):
-#         pass
-
-# "NASDAQStock"
-# EDATelemetry table
-# RecmenderSystem table
 
 # Use for page cards that should be removed when navigating away.
 # For pages that should be always present on screen use q.page[key] = ...
@@ -48,15 +29,48 @@ def clear_cards(q, ignore: Optional[List[str]] = []) -> None:
             del q.page[name]
             q.client.cards.remove(name)
 
-
 @on('#page1')
 async def page1(q: Q):
     q.page['sidebar'].value = '#page1'
     clear_cards(q)  # When routing, drop all the cards except of the main ones (header, sidebar, meta).
-
-    for i in range(3):
-        add_card(q, f'info{i}', ui.tall_info_card(box='horizontal', name='', title='Speed',
-                                                  caption='The models are performant thanks to...', icon='SpeedHigh'))
+    top_recommended_securities = get_top_n_most_recent_recommended_securities(sqlEngine, 2)
+    for index, recommended_security in enumerate(top_recommended_securities):
+        add_card(q, f'info{index}', ui.tall_info_card(box='horizontal', name="", title=f"{recommended_security.symbol}", caption=f"{recommended_security.security_name}", icon='SpeedHigh'))
+    # add_card(q, 'chart1', ui.plot_card(
+    #     box='horizontal',
+    #     title='Chart 1',
+    #     data=data('category country product price', 10, rows=[
+    #         ('G1', 'USA', 'P1', 124),
+    #         ('G1', 'China', 'P2', 580),
+    #         ('G1', 'USA', 'P3', 528),
+    #         ('G1', 'China', 'P1', 361),
+    #         ('G1', 'USA', 'P2', 228),
+    #         ('G2', 'China', 'P3', 418),
+    #         ('G2', 'USA', 'P1', 824),
+    #         ('G2', 'China', 'P2', 539),
+    #         ('G2', 'USA', 'P3', 712),
+    #         ('G2', 'USA', 'P1', 213),
+    #     ]),
+    #     plot=ui.plot([ui.mark(type='interval', x='=product', y='=price', color='=country', stack='auto',
+    #                           dodge='=category', y_min=0)])
+    # ))
+    # add_card(q, 'chart2', ui.plot_card(
+    #     box='horizontal',
+    #     title='Chart 2',
+    #     data=data('date price', 10, rows=[
+    #         ('2020-03-20', 124),
+    #         ('2020-05-18', 580),
+    #         ('2020-08-24', 528),
+    #         ('2020-02-12', 361),
+    #         ('2020-03-11', 228),
+    #         ('2020-09-26', 418),
+    #         ('2020-11-12', 824),
+    #         ('2020-12-21', 539),
+    #         ('2020-03-18', 712),
+    #         ('2020-07-11', 213),
+    #     ]),
+    #     plot=ui.plot([ui.mark(type='line', x_scale='time', x='=date', y='=price', y_min=0)])
+    # ))
     add_card(q, 'article', ui.tall_article_preview_card(
         box=ui.box('vertical', height='600px'), title='How does magic work',
         image='https://images.pexels.com/photos/624015/pexels-photo-624015.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
