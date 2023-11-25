@@ -1,22 +1,16 @@
 
 from h2o_wave import main, app, Q, ui, on, run_on, data
 from typing import Optional, List
-from database.models import Base, Recommend
+from database.models import Base, Recommend, NASDAQStockMetadata
+from database.seed_helpers import seed_symbols_valid_metadata, seed_recommend_csv_data
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
-import csv
-import pandas as pd
 
 sqlEngine       = create_engine('mysql+pymysql://user:password@127.0.0.1:3306/nasdaq_stock', pool_recycle=3600, pool_size=50, max_overflow=50)
 dbConnection    = sqlEngine.connect()
 
 # Bind the engine to the Base class
 Base.metadata.bind = sqlEngine
-
-Base.metadata.drop_all(sqlEngine)
-
-# Create all tables defined in the Base class which includes YourModelClass
-Base.metadata.create_all(sqlEngine)
 
 # Use for page cards that should be removed when navigating away.
 # For pages that should be always present on screen use q.page[key] = ...
@@ -35,56 +29,59 @@ def clear_cards(q, ignore: Optional[List[str]] = []) -> None:
             del q.page[name]
             q.client.cards.remove(name)
 
-def _process_recommend_csv_data(filename: str) -> None:
-    df = pd.read_csv(filename)  # If the file has no header row
-    df = df.isna().applymap(lambda x: None if x else x)
+def _get_top_recommendations() -> None:
     # Create a session
     Session = sessionmaker(bind=sqlEngine)
     session = Session()
-    # Create a new Recommend record
 
-    for index, row in df.iterrows():
-        new_record = Recommend(
-            one_hundredth_date = row["100th Date"],
-            close = row["Close"],
-            macd_diff_pytorch = row["MACD_diff_pytorch"],
-            macd_diff_transformers = row["MACD_diff_transformers"],
-            decision_macd_diff_pytorch = row["Decision MACD_pytorch"],
-            decision_macd_diff_transformers = row["Decision MACD_transformers"],
-            sma_twenty_pytorch= row["SMA20_pytorch"],
-            sma_twenty_transformers= row["SMA20_transformers"],
-            sma_fifty_pytorch= row["SMA50_pytorch"],
-            sma_fifty_transformers= row["SMA50_transformers"],
-            signal_pytorch= row["Signal_pytorch"],
-            signal_transformers= row["Signal_transformers"],
-            decision_gc_pytorch= row["Decision GC_pytorch"],
-            decision_gc_transformers= row["Decision GC_transformers"],
-            rsi_pytorch= row["RSI_pytorch"],
-            rsi_transformers= row["RSI_transformers"],
-            sma_two_hundred_pytorch= row["SMA200_pytorch"],
-            sma_two_hundred_transformers= row["SMA200_transformers"],
-            decision_rsi_and_sma_pytorch= row["Decision RSI/SMA_pytorch"],
-            decision_rsi_and_sma_transformers= row["Decision RSI/SMA_transformers"],
-            decision_final_status= row["Decision Financial Status"]
-        )
-        # Add the new record to the session
-        session.add(new_record)
-        # Commit the transaction
-        session.commit()
+    query_result = session.query(Recommend).order_by(Recommend.column_name.desc()).limit(5).all()
 
     # Close the session (optional, but recommended)
     session.close()
 
-
 @on('#page1')
 async def page1(q: Q):
-    _process_recommend_csv_data('/Users/karoljosefbustamante/College/SJSU/CMPE256/Stock-Recommender-System/myStock-wave-app/assets/recommend.csv')
     q.page['sidebar'].value = '#page1'
     clear_cards(q)  # When routing, drop all the cards except of the main ones (header, sidebar, meta).
 
-    for i in range(3):
-        add_card(q, f'info{i}', ui.tall_info_card(box='horizontal', name='', title='Speed',
-                                                  caption='The models are performant thanks to...', icon='SpeedHigh'))
+    add_card(q, f'info{0}', ui.tall_info_card(box='horizontal', name='', title='Speed', caption='The models are performant thanks to...', icon='SpeedHigh'))
+    add_card(q, f'info{1}', ui.tall_info_card(box='horizontal', name='', title='Speed', caption='The models are performant thanks to...', icon='SpeedHigh'))
+    add_card(q, f'info{2}', ui.tall_info_card(box='horizontal', name='', title='Speed', caption='The models are performant thanks to...', icon='SpeedHigh'))
+    # add_card(q, 'chart1', ui.plot_card(
+    #     box='horizontal',
+    #     title='Chart 1',
+    #     data=data('category country product price', 10, rows=[
+    #         ('G1', 'USA', 'P1', 124),
+    #         ('G1', 'China', 'P2', 580),
+    #         ('G1', 'USA', 'P3', 528),
+    #         ('G1', 'China', 'P1', 361),
+    #         ('G1', 'USA', 'P2', 228),
+    #         ('G2', 'China', 'P3', 418),
+    #         ('G2', 'USA', 'P1', 824),
+    #         ('G2', 'China', 'P2', 539),
+    #         ('G2', 'USA', 'P3', 712),
+    #         ('G2', 'USA', 'P1', 213),
+    #     ]),
+    #     plot=ui.plot([ui.mark(type='interval', x='=product', y='=price', color='=country', stack='auto',
+    #                           dodge='=category', y_min=0)])
+    # ))
+    # add_card(q, 'chart2', ui.plot_card(
+    #     box='horizontal',
+    #     title='Chart 2',
+    #     data=data('date price', 10, rows=[
+    #         ('2020-03-20', 124),
+    #         ('2020-05-18', 580),
+    #         ('2020-08-24', 528),
+    #         ('2020-02-12', 361),
+    #         ('2020-03-11', 228),
+    #         ('2020-09-26', 418),
+    #         ('2020-11-12', 824),
+    #         ('2020-12-21', 539),
+    #         ('2020-03-18', 712),
+    #         ('2020-07-11', 213),
+    #     ]),
+    #     plot=ui.plot([ui.mark(type='line', x_scale='time', x='=date', y='=price', y_min=0)])
+    # ))
     add_card(q, 'article', ui.tall_article_preview_card(
         box=ui.box('vertical', height='600px'), title='How does magic work',
         image='https://images.pexels.com/photos/624015/pexels-photo-624015.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',

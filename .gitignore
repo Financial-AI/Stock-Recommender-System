@@ -1,4 +1,5 @@
 myStock-wave-app/assets/*.csv
+myStock-wave-app/database/seed/*.csv
 .DS_Store
 myStock-wave-app/.DS_Store
 
