@@ -3,7 +3,7 @@ from h2o_wave import main, app, Q, ui, on, run_on, data
 from typing import Optional, List
 from database.models import Base, Recommend, NASDAQStockMetadata
 from database.seed_helpers import seed_symbols_valid_metadata, seed_recommend_csv_data
-from sqlalchemy.orm import sessionmaker
+from database.recommendation import get_top_n_most_recent_recommended_securities
 from sqlalchemy import create_engine
 
 sqlEngine       = create_engine('mysql+pymysql://user:password@127.0.0.1:3306/nasdaq_stock', pool_recycle=3600, pool_size=50, max_overflow=50)
@@ -29,24 +29,13 @@ def clear_cards(q, ignore: Optional[List[str]] = []) -> None:
             del q.page[name]
             q.client.cards.remove(name)
 
-def _get_top_recommendations() -> None:
-    # Create a session
-    Session = sessionmaker(bind=sqlEngine)
-    session = Session()
-
-    query_result = session.query(Recommend).order_by(Recommend.column_name.desc()).limit(5).all()
-
-    # Close the session (optional, but recommended)
-    session.close()
-
 @on('#page1')
 async def page1(q: Q):
     q.page['sidebar'].value = '#page1'
     clear_cards(q)  # When routing, drop all the cards except of the main ones (header, sidebar, meta).
-
-    add_card(q, f'info{0}', ui.tall_info_card(box='horizontal', name='', title='Speed', caption='The models are performant thanks to...', icon='SpeedHigh'))
-    add_card(q, f'info{1}', ui.tall_info_card(box='horizontal', name='', title='Speed', caption='The models are performant thanks to...', icon='SpeedHigh'))
-    add_card(q, f'info{2}', ui.tall_info_card(box='horizontal', name='', title='Speed', caption='The models are performant thanks to...', icon='SpeedHigh'))
+    top_recommended_securities = get_top_n_most_recent_recommended_securities(sqlEngine, 2)
+    for index, recommended_security in enumerate(top_recommended_securities):
+        add_card(q, f'info{index}', ui.tall_info_card(box='horizontal', name="", title=f"{recommended_security.symbol}", caption=f"{recommended_security.security_name}", icon='SpeedHigh'))
     # add_card(q, 'chart1', ui.plot_card(
     #     box='horizontal',
     #     title='Chart 1',

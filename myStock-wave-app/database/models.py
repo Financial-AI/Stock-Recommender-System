@@ -88,4 +88,4 @@ class Recommend(Base):
     # user: Mapped["User"] = relationship(back_populates="addresses")
 
     def __repr__(self) -> str:
-        return f"Recommend(id={self.id!r}, date={self.one_hundredth_date!r}, close={str(self.close)!r}, macd_diff={str(self.macd_diff)!r}, decision_macd_diff={str(self.decision_macd_diff)!r}, sma_twenty={str(self.sma_twenty)!r}, sma_fifty={str(self.sma_fifty)!r}, signal={str(self.signal)!r}, decision_gc={str(self.decision_gc)!r}, rsi={str(self.rsi)!r}, sma_two_hundred={str(self.sma_two_hundred)!r}, decision_rsi_and_sma={str(self.decision_rsi_and_sma)!r}, decision_final_status={str(self.decision_final_status)!r})"
+        return f"Recommend(id={self.id!r}, one_hundredth_date={self.one_hundredth_date!r}, close={str(self.close)!r})"
