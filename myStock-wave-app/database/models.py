@@ -1,7 +1,7 @@
 from typing import List
 from typing import Optional
 from sqlalchemy import ForeignKey
-from sqlalchemy import String, Column, Boolean, Float
+from sqlalchemy import String, Column, Boolean, Float, Integer
 from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy.orm import Mapped
 from sqlalchemy.orm import mapped_column
@@ -13,19 +13,21 @@ class Base(DeclarativeBase):
 class NASDAQStock(Base):
     __tablename__ = "nasdaq_stock"
     id: Mapped[int] = mapped_column(primary_key=True)
+    ticker: Mapped[Optional[str]] = mapped_column(String(255))
     date: Mapped[Optional[str]] = mapped_column(String(255))
     open: Mapped[Optional[float]] = Column(Float, default=0.0, nullable=True)
     high: Mapped[Optional[float]] = Column(Float, default=0.0, nullable=True)
     low: Mapped[Optional[float]] = Column(Float, default=0.0, nullable=True)
     close: Mapped[Optional[float]] = Column(Float, default=0.0, nullable=True)
     adj_close: Mapped[Optional[float]] = Column(Float, default=0.0, nullable=True)
-    volume: Mapped[Optional[int]]
+    volume: Mapped[Optional[int]] = Column(Integer, default=0, nullable=True)
     # addresses: Mapped[List["Address"]] = relationship(
     #     back_populates="user", cascade="all, delete-orphan"
     # )
 
     def __repr__(self) -> str:
         return f"NASDAQStock(id={self.id!r}, date={self.date!r}, open={str(self.open)!r}, high={str(self.high)!r}, low={str(self.low)!r}, close={str(self.close)!r}, adj_close={str(self.adj_close)!r}, volume={str(self.volume)!r})"
+
 
 class NASDAQStockMetadata(Base):
     __tablename__ = "nasdaq_stock_metadata"
