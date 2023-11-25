@@ -10,6 +10,15 @@ This project was bootstrapped with `wave init` command.
 
 3. Create a user in mysql with the username: user and password: password
 
+## Seeding the database
+
+Place the following files in the "myStock-wave-app/database/seed" directory:
+
+1. metadata csv file
+2. recommender dataframe result CSVs of companies
+   
+Then run the script  "myStock-wave-app/seed_database_tables.py"
+
 ## Running the app
 
 Make sure you have activated a Python virtual environment with `h2o-wave` installed.
