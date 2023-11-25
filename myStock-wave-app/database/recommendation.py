@@ -9,17 +9,17 @@ def get_top_n_most_recent_recommended_securities(sqlEngine, n: int = 5) -> dict[
 
     top_recommendations = session.query(Recommend).filter(Recommend.signal_transformers == 1 and Recommend.signal_pytorch == 1).group_by(Recommend.nasdaq_stock_metadata_id, Recommend.id).order_by(func.count().desc()).all()
 
-    recommended_securities = []
+    recommended_securities = {}
     recommendation_metadata_id = top_recommendations[0].nasdaq_stock_metadata_id
     ticker_metadata = session.query(NASDAQStockMetadata).filter(NASDAQStockMetadata.id == recommendation_metadata_id).one()
-    recommended_securities.append(ticker_metadata)
+    recommended_securities[ticker_metadata.symbol] = ticker_metadata
     for index, recommendation in enumerate(top_recommendations):
-      if len(recommended_securities) == n:
+      if len(recommended_securities.values()) == n:
          break
       if recommendation.nasdaq_stock_metadata_id == recommendation_metadata_id:
          continue
       ticker_metadata = session.query(NASDAQStockMetadata).filter(NASDAQStockMetadata.id == recommendation.nasdaq_stock_metadata_id).one()
-      recommended_securities.append(ticker_metadata)
+      recommended_securities[ticker_metadata.symbol] = ticker_metadata
       recommendation_metadata_id = recommendation.nasdaq_stock_metadata_id
 
     # Close the session (optional, but recommended)
