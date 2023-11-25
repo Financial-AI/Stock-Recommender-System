@@ -1,11 +1,70 @@
 
-from database.models import Recommend, NASDAQStockMetadata
+from database.models import Recommend, NASDAQStock, NASDAQStockMetadata
 from sqlalchemy.orm import sessionmaker
 import pandas as pd
 import os
 
+
+def seed_nasdaq_stock_db_tables(sqlEngine: any) -> None:
+    home_directory = os.environ["HOME"]
+    nasdaq_path = f"{home_directory}/src/sjsu/Stock-Recommender-System/myStock-wave-app/database/seed/NASDAQ_Yahoo_Finance"
+    directory_path = os.path.join(nasdaq_path, "stocks")
+
+    url = "https://en.wikipedia.org/wiki/Nasdaq-100"
+    nasdaq100_meta = pd.read_html(url)[4]
+    nasdaq100_meta.to_csv(f"{nasdaq_path}/nasdaq100_meta.csv", index=False)
+    nasdaq100_ticker_list = nasdaq100_meta["Ticker"].tolist()
+
+    for file in os.listdir(directory_path):
+        filename_without_extension = os.path.splitext(file)[0]  # Get filename without extension
+        if filename_without_extension in nasdaq100_ticker_list:
+            print(f"Found {filename_without_extension} file in NASDAQ100 Meta list, loading MySQL NASDAQStock table")
+            df = pd.read_csv(os.path.join(directory_path, file))
+
+            # Create a session
+            Session = sessionmaker(bind=sqlEngine)
+            session = Session()
+            # Create a new NASDAQ stock record
+
+            for index, row in df.iterrows():
+                if pd.isna(row["Date"]):
+                    continue
+                if pd.isna(row["Open"]):
+                    continue
+                if pd.isna(row["High"]):
+                    continue
+                if pd.isna(row["Low"]):
+                    continue
+                if pd.isna(row["Close"]):
+                    continue
+                if pd.isna(row["Adj Close"]):
+                    continue
+                if pd.isna(row["Volume"]):
+                    continue
+
+                new_record = NASDAQStock(
+                    ticker = str(filename_without_extension),
+                    date = str(row["Date"]),
+                    open = float(row["Open"]),
+                    high = float(row["High"]),
+                    low = float(row["Low"]),
+                    close = float(row["Close"]),
+                    adj_close = float(row["Adj Close"]),
+                    volume = int(row["Volume"]),
+                )
+                # Add the new record to the session
+                session.add(new_record)
+                # Commit the transaction
+                
+            session.commit()
+            # Close the session (optional, but recommended)
+            session.close()
+
+
 def seed_symbols_valid_metadata(sqlEngine: any) -> None:
-    directory_path = "database/seed"
+    home_directory = os.environ["HOME"]
+    directory_path = f"{home_directory}/src/sjsu/Stock-Recommender-System/myStock-wave-app/database/seed/NASDAQ_Yahoo_Finance"
+
     df = pd.read_csv(os.path.join(directory_path, "symbols_valid_meta.csv"))
 
     # Create a session
