@@ -33,7 +33,7 @@ def clear_cards(q, ignore: Optional[List[str]] = []) -> None:
 async def page1(q: Q):
     q.page['sidebar'].value = '#page1'
     clear_cards(q)  # When routing, drop all the cards except of the main ones (header, sidebar, meta).
-    top_recommended_securities = get_top_n_most_recent_recommended_securities(sqlEngine, 2)
+    top_recommended_securities = get_top_n_most_recent_recommended_securities(sqlEngine, 3)
     for index, recommended_security in enumerate(top_recommended_securities):
         add_card(q, f'info{index}', ui.tall_info_card(box='horizontal', name="", title=f"{recommended_security.symbol}", caption=f"{recommended_security.security_name}", icon='SpeedHigh'))
     # add_card(q, 'chart1', ui.plot_card(
