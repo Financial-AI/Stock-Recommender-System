@@ -88,13 +88,13 @@ async def page2(q: Q):
     ))
     add_card(q, 'pytorch_sma_20', ui.plot_card(
         box='horizontal',
-        title='SMA 20 over time',
+        title='SMA 20 over time pytorch',
         data=data('date price', len(ticker_with_macd_diff_pred_over_time_first_recommended_pytorch), rows=ticker_with_macd_diff_pred_over_time_first_recommended_pytorch),
         plot=ui.plot([ui.mark(type='line', x_scale='time', x='=date', y='=price', y_min=0)])
     ))
     add_card(q, 'transformers_sma_20', ui.plot_card(
         box='horizontal',
-        title='SMA 20 over time',
+        title='SMA 20 over time transformers',
         data=data('date price', len(ticker_with_macd_diff_pred_over_time_first_recommended_transformers), rows=ticker_with_macd_diff_pred_over_time_first_recommended_transformers),
         plot=ui.plot([ui.mark(type='line', x_scale='time', x='=date', y='=price', y_min=0)])
     ))
