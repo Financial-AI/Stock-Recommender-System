@@ -3,8 +3,11 @@ from h2o_wave import main, app, Q, ui, on, run_on, data
 from typing import Optional, List
 from database.models import Base, Recommend, NASDAQStockMetadata
 from database.seed_helpers import seed_symbols_valid_metadata, seed_recommend_csv_data
-from database.recommendation import get_top_n_most_recent_recommended_securities
+from database.recommendation import get_top_n_most_recent_recommended_securities 
+from database.chart import get_close_chart
 from sqlalchemy import create_engine
+
+TOP_N_RECOMMENDATIONS = 3
 
 sqlEngine       = create_engine('mysql+pymysql://user:password@127.0.0.1:3306/nasdaq_stock', pool_recycle=3600, pool_size=50, max_overflow=50)
 dbConnection    = sqlEngine.connect()
@@ -33,44 +36,9 @@ def clear_cards(q, ignore: Optional[List[str]] = []) -> None:
 async def page1(q: Q):
     q.page['sidebar'].value = '#page1'
     clear_cards(q)  # When routing, drop all the cards except of the main ones (header, sidebar, meta).
-    top_recommended_securities = get_top_n_most_recent_recommended_securities(sqlEngine, 3)
-    for index, recommended_security in enumerate(top_recommended_securities):
+    top_recommended_securities = get_top_n_most_recent_recommended_securities(sqlEngine, TOP_N_RECOMMENDATIONS)
+    for index, recommended_security in enumerate(top_recommended_securities.values()):
         add_card(q, f'info{index}', ui.tall_info_card(box='horizontal', name="", title=f"{recommended_security.symbol}", caption=f"{recommended_security.security_name}", icon='SpeedHigh'))
-    # add_card(q, 'chart1', ui.plot_card(
-    #     box='horizontal',
-    #     title='Chart 1',
-    #     data=data('category country product price', 10, rows=[
-    #         ('G1', 'USA', 'P1', 124),
-    #         ('G1', 'China', 'P2', 580),
-    #         ('G1', 'USA', 'P3', 528),
-    #         ('G1', 'China', 'P1', 361),
-    #         ('G1', 'USA', 'P2', 228),
-    #         ('G2', 'China', 'P3', 418),
-    #         ('G2', 'USA', 'P1', 824),
-    #         ('G2', 'China', 'P2', 539),
-    #         ('G2', 'USA', 'P3', 712),
-    #         ('G2', 'USA', 'P1', 213),
-    #     ]),
-    #     plot=ui.plot([ui.mark(type='interval', x='=product', y='=price', color='=country', stack='auto',
-    #                           dodge='=category', y_min=0)])
-    # ))
-    # add_card(q, 'chart2', ui.plot_card(
-    #     box='horizontal',
-    #     title='Chart 2',
-    #     data=data('date price', 10, rows=[
-    #         ('2020-03-20', 124),
-    #         ('2020-05-18', 580),
-    #         ('2020-08-24', 528),
-    #         ('2020-02-12', 361),
-    #         ('2020-03-11', 228),
-    #         ('2020-09-26', 418),
-    #         ('2020-11-12', 824),
-    #         ('2020-12-21', 539),
-    #         ('2020-03-18', 712),
-    #         ('2020-07-11', 213),
-    #     ]),
-    #     plot=ui.plot([ui.mark(type='line', x_scale='time', x='=date', y='=price', y_min=0)])
-    # ))
     add_card(q, 'article', ui.tall_article_preview_card(
         box=ui.box('vertical', height='600px'), title='How does magic work',
         image='https://images.pexels.com/photos/624015/pexels-photo-624015.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
@@ -104,21 +72,13 @@ async def page2(q: Q):
         plot=ui.plot([ui.mark(type='interval', x='=product', y='=price', color='=country', stack='auto',
                               dodge='=category', y_min=0)])
     ))
+    ticker_with_close_pred_over_time = get_close_chart(sqlEngine, TOP_N_RECOMMENDATIONS)
+    print(ticker_with_close_pred_over_time.keys())
+    first_recommended = next(iter(ticker_with_close_pred_over_time.values()))
     add_card(q, 'chart2', ui.plot_card(
         box='horizontal',
-        title='Chart 2',
-        data=data('date price', 10, rows=[
-            ('2020-03-20', 124),
-            ('2020-05-18', 580),
-            ('2020-08-24', 528),
-            ('2020-02-12', 361),
-            ('2020-03-11', 228),
-            ('2020-09-26', 418),
-            ('2020-11-12', 824),
-            ('2020-12-21', 539),
-            ('2020-03-18', 712),
-            ('2020-07-11', 213),
-        ]),
+        title='Close price over time',
+        data=data('date price', len(first_recommended), rows=first_recommended),
         plot=ui.plot([ui.mark(type='line', x_scale='time', x='=date', y='=price', y_min=0)])
     ))
     add_card(q, 'table', ui.form_card(box='vertical', items=[ui.table(
