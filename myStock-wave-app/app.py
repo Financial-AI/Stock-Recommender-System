@@ -5,23 +5,12 @@ from database.models import Base, Recommend, NASDAQStockMetadata
 from database.seed_helpers import seed_symbols_valid_metadata, seed_recommend_csv_data
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
-import csv
-import pandas as pd
-import os
 
 sqlEngine       = create_engine('mysql+pymysql://user:password@127.0.0.1:3306/nasdaq_stock', pool_recycle=3600, pool_size=50, max_overflow=50)
 dbConnection    = sqlEngine.connect()
 
 # Bind the engine to the Base class
 Base.metadata.bind = sqlEngine
-
-# Drop all tables so we can re-create them if there are any changes
-Base.metadata.drop_all(sqlEngine)
-
-# Create all tables defined in the Base class and seed tables with data from CSVs
-Base.metadata.create_all(sqlEngine)
-seed_symbols_valid_metadata(sqlEngine)
-seed_recommend_csv_data(sqlEngine)
 
 # Use for page cards that should be removed when navigating away.
 # For pages that should be always present on screen use q.page[key] = ...
@@ -56,8 +45,8 @@ async def page1(q: Q):
     clear_cards(q)  # When routing, drop all the cards except of the main ones (header, sidebar, meta).
 
     add_card(q, f'info{0}', ui.tall_info_card(box='horizontal', name='', title='Speed', caption='The models are performant thanks to...', icon='SpeedHigh'))
-    add_card(q, f'info{0}', ui.tall_info_card(box='horizontal', name='', title='Speed', caption='The models are performant thanks to...', icon='SpeedHigh'))
-    add_card(q, f'info{0}', ui.tall_info_card(box='horizontal', name='', title='Speed', caption='The models are performant thanks to...', icon='SpeedHigh'))
+    add_card(q, f'info{1}', ui.tall_info_card(box='horizontal', name='', title='Speed', caption='The models are performant thanks to...', icon='SpeedHigh'))
+    add_card(q, f'info{2}', ui.tall_info_card(box='horizontal', name='', title='Speed', caption='The models are performant thanks to...', icon='SpeedHigh'))
     # add_card(q, 'chart1', ui.plot_card(
     #     box='horizontal',
     #     title='Chart 1',
