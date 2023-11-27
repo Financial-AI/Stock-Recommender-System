@@ -6,8 +6,7 @@ import os
 
 
 def seed_nasdaq_stock_db_tables(sqlEngine: any) -> None:
-    home_directory = os.environ["HOME"]
-    nasdaq_path = f"{home_directory}/src/sjsu/Stock-Recommender-System/myStock-wave-app/database/seed/NASDAQ_Yahoo_Finance"
+    nasdaq_path = "database/seed"
     directory_path = os.path.join(nasdaq_path, "stocks")
 
     url = "https://en.wikipedia.org/wiki/Nasdaq-100"
@@ -62,8 +61,7 @@ def seed_nasdaq_stock_db_tables(sqlEngine: any) -> None:
 
 
 def seed_symbols_valid_metadata(sqlEngine: any) -> None:
-    home_directory = os.environ["HOME"]
-    directory_path = f"{home_directory}/src/sjsu/Stock-Recommender-System/myStock-wave-app/database/seed/NASDAQ_Yahoo_Finance"
+    directory_path = "database/seed"
 
     df = pd.read_csv(os.path.join(directory_path, "symbols_valid_meta.csv"))
 
