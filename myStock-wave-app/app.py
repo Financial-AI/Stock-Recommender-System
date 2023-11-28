@@ -43,9 +43,9 @@ async def page1(q: Q):
         box=ui.box('vertical', height='600px'), title='How does magic work',
         image='https://images.pexels.com/photos/624015/pexels-photo-624015.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
         content='''
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum ac sodales felis. Duis orci enim, iaculis at augue vel, mattis imperdiet ligula. Sed a placerat lacus, vitae viverra ante. Duis laoreet purus sit amet orci lacinia, non facilisis ipsum venenatis. Duis bibendum malesuada urna. Praesent vehicula tempor volutpat. In sem augue, blandit a tempus sit amet, tristique vehicula nisl. Duis molestie vel nisl a blandit. Nunc mollis ullamcorper elementum.
-Donec in erat augue. Nullam mollis ligula nec massa semper, laoreet pellentesque nulla ullamcorper. In ante ex, tristique et mollis id, facilisis non metus. Aliquam neque eros, semper id finibus eu, pellentesque ac magna. Aliquam convallis eros ut erat mollis, sit amet scelerisque ex pretium. Nulla sodales lacus a tellus molestie blandit. Praesent molestie elit viverra, congue purus vel, cursus sem. Donec malesuada libero ut nulla bibendum, in condimentum massa pretium. Aliquam erat volutpat. Interdum et malesuada fames ac ante ipsum primis in faucibus. Integer vel tincidunt purus, congue suscipit neque. Fusce eget lacus nibh. Sed vestibulum neque id erat accumsan, a faucibus leo malesuada. Curabitur varius ligula a velit aliquet tincidunt. Donec vehicula ligula sit amet nunc tempus, non fermentum odio rhoncus.
-Vestibulum condimentum consectetur aliquet. Phasellus mollis at nulla vel blandit. Praesent at ligula nulla. Curabitur enim tellus, congue id tempor at, malesuada sed augue. Nulla in justo in libero condimentum euismod. Integer aliquet, velit id convallis maximus, nisl dui porta velit, et pellentesque ligula lorem non nunc. Sed tincidunt purus non elit ultrices egestas quis eu mauris. Sed molestie vulputate enim, a vehicula nibh pulvinar sit amet. Nullam auctor sapien est, et aliquet dui congue ornare. Donec pulvinar scelerisque justo, nec scelerisque velit maximus eget. Ut ac lectus velit. Pellentesque bibendum ex sit amet cursus commodo. Fusce congue metus at elementum ultricies. Suspendisse non rhoncus risus. In hac habitasse platea dictumst.
+Welcome to Stock Autobots, a Stock Recommender System to help you invest and buy and/or sell stock. Usually it takes time researching companies and industries to choose the right stocks. Even with funds, fund managers are prone to 
+human error and human bias. Therefore, we are providing an AI personalized recommender system toward stock investing that will be tailored toward your industry domains of interest. Our goal is to encourage you to learn about stock 
+investing. Hopefully, by making it easier to do stock investing with our recommender system, potentially more people come into retirement with multiple sources of retirement savings.
         '''
     ))
 
@@ -54,24 +54,7 @@ Vestibulum condimentum consectetur aliquet. Phasellus mollis at nulla vel blandi
 async def page2(q: Q):
     q.page['sidebar'].value = '#page2'
     clear_cards(q)  # When routing, drop all the cards except of the main ones (header, sidebar, meta).
-    # add_card(q, 'chart1', ui.plot_card(
-    #     box='horizontal',
-    #     title='100 Moving Average Vs Close Price',
-    #     data=data('category country product price', 10, rows=[
-    #         ('G1', 'USA', 'P1', 124),
-    #         ('G1', 'China', 'P2', 580),
-    #         ('G1', 'USA', 'P3', 528),
-    #         ('G1', 'China', 'P1', 361),
-    #         ('G1', 'USA', 'P2', 228),
-    #         ('G2', 'China', 'P3', 418),
-    #         ('G2', 'USA', 'P1', 824),
-    #         ('G2', 'China', 'P2', 539),
-    #         ('G2', 'USA', 'P3', 712),
-    #         ('G2', 'USA', 'P1', 213),
-    #     ]),
-    #     plot=ui.plot([ui.mark(type='interval', x='=product', y='=price', color='=country', stack='auto',
-    #                           dodge='=category', y_min=0)])
-    # ))
+
     ticker_with_mavg_close_over_time = get_mavg_100_close_chart(sqlEngine)
     ticker_with_close_pred_over_time = get_close_chart(sqlEngine, TOP_N_RECOMMENDATIONS)
     ticker_with_macd_diff_over_time_pytorch = get_sma_20_diff_chart(sqlEngine, "pytorch", TOP_N_RECOMMENDATIONS)
@@ -109,31 +92,34 @@ async def page2(q: Q):
         data=data('date price', len(ticker_with_macd_diff_pred_over_time_first_recommended_transformers), rows=ticker_with_macd_diff_pred_over_time_first_recommended_transformers),
         plot=ui.plot([ui.mark(type='line', x_scale='time', x='=date', y='=price', y_min=0)])
     ))
-    add_card(q, 'table', ui.form_card(box='vertical', items=[ui.table(
-        name='table',
-        downloadable=True,
-        resettable=True,
-        groupable=True,
-        columns=[
-            ui.table_column(name='text', label='Process', searchable=True),
-            ui.table_column(name='tag', label='Status', filterable=True, cell_type=ui.tag_table_cell_type(
-                name='tags',
-                tags=[
-                    ui.tag(label='FAIL', color='$red'),
-                    ui.tag(label='DONE', color='#D2E3F8', label_color='#053975'),
-                    ui.tag(label='SUCCESS', color='$mint'),
-                ]
-            ))
-        ],
-        rows=[
-            ui.table_row(name='row1', cells=['Process 1', 'FAIL']),
-            ui.table_row(name='row2', cells=['Process 2', 'SUCCESS,DONE']),
-            ui.table_row(name='row3', cells=['Process 3', 'DONE']),
-            ui.table_row(name='row4', cells=['Process 4', 'FAIL']),
-            ui.table_row(name='row5', cells=['Process 5', 'SUCCESS,DONE']),
-            ui.table_row(name='row6', cells=['Process 6', 'DONE']),
-        ])
-    ]))
+
+    # TODO: Either we have a download button for the graphs or we have this table where we can
+    # download the data from our graphs listed in this table
+    # add_card(q, 'table', ui.form_card(box='vertical', items=[ui.table(
+    #     name='table',
+    #     downloadable=True,
+    #     resettable=True,
+    #     groupable=True,
+    #     columns=[
+    #         ui.table_column(name='text', label='Process', searchable=True),
+    #         ui.table_column(name='tag', label='Status', filterable=True, cell_type=ui.tag_table_cell_type(
+    #             name='tags',
+    #             tags=[
+    #                 ui.tag(label='FAIL', color='$red'),
+    #                 ui.tag(label='DONE', color='#D2E3F8', label_color='#053975'),
+    #                 ui.tag(label='SUCCESS', color='$mint'),
+    #             ]
+    #         ))
+    #     ],
+    #     rows=[
+    #         ui.table_row(name='row1', cells=['Process 1', 'FAIL']),
+    #         ui.table_row(name='row2', cells=['Process 2', 'SUCCESS,DONE']),
+    #         ui.table_row(name='row3', cells=['Process 3', 'DONE']),
+    #         ui.table_row(name='row4', cells=['Process 4', 'FAIL']),
+    #         ui.table_row(name='row5', cells=['Process 5', 'SUCCESS,DONE']),
+    #         ui.table_row(name='row6', cells=['Process 6', 'DONE']),
+    #     ])
+    # ]))
 
 
 @on('#page3')
@@ -233,7 +219,7 @@ async def init(q: Q) -> None:
         box='header', title='', subtitle='',
         secondary_items=[ui.textbox(name='search', icon='Search', width='400px', placeholder='Search...')],
         items=[
-            ui.persona(title='John Doe', subtitle='Developer', size='xs',
+            ui.persona(title='Juan Gomez', subtitle='Developer', size='xs',
                        image='https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&h=750&w=1260'),
         ]
     )
