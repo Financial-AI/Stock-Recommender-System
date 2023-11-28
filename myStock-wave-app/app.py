@@ -4,7 +4,7 @@ from typing import Optional, List
 from database.models import Base, Recommend, NASDAQStockMetadata
 from database.seed_helpers import seed_symbols_valid_metadata, seed_recommend_csv_data
 from database.recommendation import get_top_n_most_recent_recommended_securities 
-from database.chart import get_close_chart, get_sma_20_diff_chart 
+from database.chart import get_close_chart, get_sma_20_diff_chart, get_mavg_100_close_chart
 from sqlalchemy import create_engine
 
 TOP_N_RECOMMENDATIONS = 3
@@ -54,24 +54,25 @@ Vestibulum condimentum consectetur aliquet. Phasellus mollis at nulla vel blandi
 async def page2(q: Q):
     q.page['sidebar'].value = '#page2'
     clear_cards(q)  # When routing, drop all the cards except of the main ones (header, sidebar, meta).
-    add_card(q, 'chart1', ui.plot_card(
-        box='horizontal',
-        title='100 Moving Average Vs Close Price',
-        data=data('category country product price', 10, rows=[
-            ('G1', 'USA', 'P1', 124),
-            ('G1', 'China', 'P2', 580),
-            ('G1', 'USA', 'P3', 528),
-            ('G1', 'China', 'P1', 361),
-            ('G1', 'USA', 'P2', 228),
-            ('G2', 'China', 'P3', 418),
-            ('G2', 'USA', 'P1', 824),
-            ('G2', 'China', 'P2', 539),
-            ('G2', 'USA', 'P3', 712),
-            ('G2', 'USA', 'P1', 213),
-        ]),
-        plot=ui.plot([ui.mark(type='interval', x='=product', y='=price', color='=country', stack='auto',
-                              dodge='=category', y_min=0)])
-    ))
+    # add_card(q, 'chart1', ui.plot_card(
+    #     box='horizontal',
+    #     title='100 Moving Average Vs Close Price',
+    #     data=data('category country product price', 10, rows=[
+    #         ('G1', 'USA', 'P1', 124),
+    #         ('G1', 'China', 'P2', 580),
+    #         ('G1', 'USA', 'P3', 528),
+    #         ('G1', 'China', 'P1', 361),
+    #         ('G1', 'USA', 'P2', 228),
+    #         ('G2', 'China', 'P3', 418),
+    #         ('G2', 'USA', 'P1', 824),
+    #         ('G2', 'China', 'P2', 539),
+    #         ('G2', 'USA', 'P3', 712),
+    #         ('G2', 'USA', 'P1', 213),
+    #     ]),
+    #     plot=ui.plot([ui.mark(type='interval', x='=product', y='=price', color='=country', stack='auto',
+    #                           dodge='=category', y_min=0)])
+    # ))
+    ticker_with_mavg_close_over_time = get_mavg_100_close_chart(sqlEngine)
     ticker_with_close_pred_over_time = get_close_chart(sqlEngine, TOP_N_RECOMMENDATIONS)
     ticker_with_macd_diff_over_time_pytorch = get_sma_20_diff_chart(sqlEngine, "pytorch", TOP_N_RECOMMENDATIONS)
     ticker_with_macd_diff_over_time_transformers = get_sma_20_diff_chart(sqlEngine, "transformers", TOP_N_RECOMMENDATIONS)
@@ -80,6 +81,16 @@ async def page2(q: Q):
     ticker_with_macd_diff_pred_over_time_first_recommended_pytorch = next(iter(ticker_with_macd_diff_over_time_pytorch.values()))
     ticker_with_macd_diff_pred_over_time_first_recommended_transformers = next(iter(ticker_with_macd_diff_over_time_transformers.values()))
 
+    add_card(q, 'mavg100_close_price', ui.plot_card(
+        box='horizontal',
+        title='Moving Average 100 Vs Close Price (GOOGL Ex)',
+        data=data('days close_type price', len(ticker_with_mavg_close_over_time["GOOGL"]),
+            rows=ticker_with_mavg_close_over_time["GOOGL"]
+        ),
+        plot=ui.plot([
+            ui.mark(type='line', x='=days', y='=price', color='=close_type')
+        ])
+    ))
     add_card(q, 'close_price', ui.plot_card(
         box='horizontal',
         title='Close price over time',
