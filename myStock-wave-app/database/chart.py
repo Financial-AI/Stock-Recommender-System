@@ -1,6 +1,6 @@
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import func
-from .models import Recommend, NASDAQStockMetadata
+from .models import Recommend, NASDAQStockMetadata, MovingAverage100ToClosingPrices
 
 def get_close_chart(sqlEngine, n: int = 5) -> dict[any]:
     # Create a session
@@ -27,6 +27,25 @@ def get_close_chart(sqlEngine, n: int = 5) -> dict[any]:
     session.close()
 
     return ticker_with_close_pred_over_time
+
+def get_mavg_100_close_chart(sqlEngine) -> dict[any]:
+  Session = sessionmaker(bind=sqlEngine)
+  session = Session()
+
+  mavg_close_prices = session.query(MovingAverage100ToClosingPrices).group_by(MovingAverage100ToClosingPrices.id).order_by(func.count().desc()).all()
+
+  ticker_with_mavg_close_over_time = {}
+
+  for index, mavg_to_close_price in enumerate(mavg_close_prices):
+    print(f"mavg_to_close_price.ticker = {mavg_to_close_price.ticker}")
+    if mavg_to_close_price.ticker not in ticker_with_mavg_close_over_time:
+      ticker_with_mavg_close_over_time[mavg_to_close_price.ticker] = []
+    ticker_with_mavg_close_over_time[mavg_to_close_price.ticker].append((index, "MAVG100", mavg_to_close_price.mavg))
+    ticker_with_mavg_close_over_time[mavg_to_close_price.ticker].append((index, "Close Price", mavg_to_close_price.close))
+
+  session.close()
+
+  return ticker_with_mavg_close_over_time
 
 def get_sma_20_diff_chart(sqlEngine, strategy: str, n: int = 5) -> dict[any]:
   # Create a session

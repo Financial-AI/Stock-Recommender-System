@@ -1,13 +1,58 @@
 
-from database.models import Recommend, NASDAQStock, NASDAQStockMetadata
+from database.models import Recommend, NASDAQStock, MovingAverage100ToClosingPrices, NASDAQStockMetadata
 from sqlalchemy.orm import sessionmaker
 import pandas as pd
 import os
 
+def seed_mavg100_to_close_csv_data(sqlEngine: any) -> None:
+    print("Running seed mavg100 to close prices table for DB")
+    nasdaq_path = "database/seed"
+    directory_path = os.path.join(nasdaq_path, "stock_closing_price/data_explore/mavg100_close_price")
+
+    url = "https://en.wikipedia.org/wiki/Nasdaq-100"
+    nasdaq100_meta = pd.read_html(url)[4]
+    nasdaq100_meta.to_csv(f"{nasdaq_path}/nasdaq100_meta.csv", index=False)
+    nasdaq100_ticker_list = nasdaq100_meta["Ticker"].tolist()
+
+    for file in os.listdir(directory_path):
+        filename_without_extension = os.path.splitext(file)[0]  # Get filename without extension
+        filename_splitted = filename_without_extension.split("_")
+        filename_keep_ticker = filename_splitted[0]
+        print(f"Checking filename ticker = {filename_without_extension} to see if its in nasdaq100")
+        if filename_keep_ticker in nasdaq100_ticker_list:
+            print(f"Found {filename_without_extension} file with ticker {filename_keep_ticker} in NASDAQ100 Meta list, loading MySQL MovingAverage100ToClosingPrices table")
+            df = pd.read_csv(os.path.join(directory_path, file))
+
+            # Create a session
+            Session = sessionmaker(bind=sqlEngine)
+            session = Session()
+            # Create a new NASDAQ stock record
+
+            for index, row in df.iterrows():
+                if pd.isna(row["MAVG"]):
+                    # row["MAVG"] = 0.0
+                    continue
+                if pd.isna(row["Close"]):
+                    # row["Close"] = 0.0
+                    continue
+
+                new_record = MovingAverage100ToClosingPrices(
+                    ticker = str(filename_keep_ticker),
+                    mavg = float(row["MAVG"]),
+                    close = float(row["Close"]),
+                )
+                # Add the new record to the session
+                session.add(new_record)
+                # Commit the transaction
+                
+            session.commit()
+            # Close the session (optional, but recommended)
+            session.close()
 
 def seed_nasdaq_stock_db_tables(sqlEngine: any) -> None:
+    print("Running seed nasdaq stock table for DB")
     nasdaq_path = "database/seed"
-    directory_path = os.path.join(nasdaq_path, "stocks")
+    directory_path = os.path.join(nasdaq_path, "NASDAQ_Yahoo_Finance/stocks")
 
     url = "https://en.wikipedia.org/wiki/Nasdaq-100"
     nasdaq100_meta = pd.read_html(url)[4]
@@ -61,6 +106,7 @@ def seed_nasdaq_stock_db_tables(sqlEngine: any) -> None:
 
 
 def seed_symbols_valid_metadata(sqlEngine: any) -> None:
+    print("Running seed symbols valid metadata table for DB")
     directory_path = "database/seed"
 
     df = pd.read_csv(os.path.join(directory_path, "symbols_valid_meta.csv"))
@@ -94,6 +140,7 @@ def seed_symbols_valid_metadata(sqlEngine: any) -> None:
     session.close()
 
 def seed_recommend_csv_data(sqlEngine: any) -> None:
+    print("Running seed recommend table for DB")
     directory_path = "database/seed"
     for file in os.listdir(directory_path):
         if file.endswith('recommend.csv'):
