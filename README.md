@@ -2,6 +2,12 @@
 
 Personalized Stock Recommender System for offering recommendations toward stock investing and buying/selling stocks.
 
+## Team
+
+- James Guzman
+- Josef Bustamante
+- Anshul Shandilya
+
 ## Abstract
 
 With many companies having pension plans removed from their job benefits [1] - [3], they transitioned to adopting contributory retirement plans like 401 (K) encouraging people to save, invest, and manage their own money for retirement [2]. However, many people still end up leaving their jobs financially unprepared for retirement [4], potentially resulting in them having no retirement savings [1] [3]. Even when people do have 401(K) accounts, it takes time for them to continually manage their portfolios. It takes time researching companies and industries to choose the right stocks. Even with funds, fund managers are prone to human error and human bias. Therefore, we are proposing an AI personalized recommender system toward stock investing that will be tailored for people’s industry domains of interest. The goal is to encourage people to learn about investing their money early into their career. It will also make it easier for people to start investing and potentially result in more people being prepared for retirement through retirement savings.
@@ -26,6 +32,8 @@ With many companies having pension plans removed from their job benefits [1] - [
     - [x] H2O Wave App
         - [x] Home Page Bootstrap Stock Recommender System
         - [x] EDA Telemetry Page Bootstrap Stock Graphs (Moving Average 100 vs Close Price, Closing Price Predictions used by Recommender System, etc)
+    - [x] MySQL and SqlAlchemy
+        - Tables for storing closing price stock predictions from our PyTorch LSTM and TensorFlow Transformer models, technical indicator computations and buying/selling signal flags and other data within our infrastructure
         - [ ] Future Work: Train Model, Deploy Model
 
 - [x] 2\. 15 minute presentation and program demo:
@@ -42,9 +50,19 @@ With many companies having pension plans removed from their job benefits [1] - [
 
 ## Software Libraries
 
-- **H2O.ai's Wave 1.0.0** for personalized Stock Recommendation fullstack
+- **H2O.ai's Wave 1.0.0** for personalized Stock Recommendation fullstack [README.md](myStock-wave-app/README.md)
 - **Torch 2.0.1**
 - **TensorFlow 2.12.0**
+
+## H2O Wave App Stock Recommendation
+
+H2O Wave stock recommender system home page:
+
+![h2o_wave_stock_rec_sys_home](images/h2o_wave_stock_rec_sys_home.png)
+
+H2O Wave stock EDA telemetry page:
+
+![h2o_wave_eda_telemetry_page](images/h2o_wave_eda_telemetry_page.png)
 
 ## References
 
