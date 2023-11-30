@@ -28,7 +28,8 @@ With many companies having pension plans removed from their job benefits [1] - [
             - [x] PyTorch LSTM
             - [x] TensorFlow Keras Transformers
     - [x] Kaggle and GitHub Repos
-        - [x] Jupyter Notebooks
+        - [x] [GitHub Jupyter Notebooks](./Notebooks/)
+        - [x] [Kaggle Integrated Jupyter Notebook](./Notebooks/cmpe256-group-project_integrated_josef_james_anshul.ipynb). NOTE: We added it from Kaggle into our GitHub since right now our Kaggle notebook is private.
     - [x] H2O Wave App
         - [x] Home Page Bootstrap Stock Recommender System
         - [x] EDA Telemetry Page Bootstrap Stock Graphs (Moving Average 100 vs Close Price, Closing Price Predictions used by Recommender System, etc)
